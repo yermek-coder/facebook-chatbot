@@ -5,7 +5,13 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-    res.send("272359280");
+    const challenge = req.query["hub.challenge"];
+    const verify_token = req.query["hub.verify_token"];
+
+    if (verify_token === process.env.META_VERIFICATION_TOKEN) {
+        return res.status(200).send({ message: "Success", challenge });
+    }
+    return res.status(400).send({ message: "Bad request!" });
 });
 
 app.post("/", (req, res) => {
