@@ -9,7 +9,7 @@ app.get("/", (req, res) => {
     const verify_token = req.query["hub.verify_token"];
 
     if (verify_token === process.env.META_VERIFICATION_TOKEN) {
-        return res.status(200).send({ message: "Success", challenge });
+        return res.status(200).send(challenge);
     }
     return res.status(400).send({ message: "Bad request!" });
 });
