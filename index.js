@@ -5,7 +5,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 
 app.get("/", (req, res) => {
-    res.send("Hello World! Running in " + process.env.NODE_ENV + " mode");
+    res.send("272359280");
 });
 
 app.post("/", (req, res) => {
