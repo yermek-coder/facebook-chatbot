@@ -1,6 +1,5 @@
 require("dotenv").config();
 const express = require("express");
-const axios = require("axios");
 
 const app = express();
 const port = process.env.PORT || 3000;
@@ -16,39 +15,13 @@ app.get("/", (req, res) => {
 });
 
 app.post("/", (req, res) => {
+    console.log("/ post req", req);
     res.send("Post req");
 });
-
-const CLIENT_ID = process.env.META_APP_ID;
-const CLIENT_SECRET = process.env.META_APP_SECRET;
-const REDIRECT_URI = process.env.HOSTNAME + "/auth/callback";
 
 // Handle the OAuth redirect
 app.get("/auth/callback", async (req, res) => {
     res.redirect("https://www.instagram.com");
-    // try {
-    //     // Get the code from the query parameters
-    //     const code = req.query.code;
-
-    //     // Exchange the code for an access token
-    //     const tokenResponse = await axios.post("https://api.instagram.com/oauth/access_token", {
-    //         client_id: CLIENT_ID,
-    //         client_secret: CLIENT_SECRET,
-    //         grant_type: "authorization_code",
-    //         redirect_uri: REDIRECT_URI,
-    //         code: code,
-    //     });
-
-    //     // Store the access token securely
-    //     const accessToken = tokenResponse.data.access_token;
-    //     // TODO: Save the access token to your database
-
-    //     // Redirect user to success page
-    //     res.redirect("/success");
-    // } catch (error) {
-    //     console.error("OAuth Error:", error);
-    //     res.redirect("/error");
-    // }
 });
 
 app.listen(port);
