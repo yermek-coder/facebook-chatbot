@@ -2,18 +2,26 @@
     "name": "facebook-chatbot",
     "version": "1.0.0",
     "description": "",
-    "main": "index.js",
+    "main": "src/app.js",
     "scripts": {
-        "start": "node app.js",
-        "dev": "nodemon app.js",
-        "test": "echo \"Error: no test specified\" && exit 1"
+        "start": "node src/app.js",
+        "dev": "nodemon src/app.js",
+        "test": "echo \"Error: no test specified\" && exit 1",
+        "ngrok": "node src/ngrok.js"
     },
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "assert": "^2.1.0",
         "axios": "^1.7.8",
+        "body-parser": "^1.20.3",
         "dotenv": "^16.4.5",
-        "express": "^4.21.1"
+        "express": "^4.21.1",
+        "express-json-promise": "^0.1.2",
+        "ngrok": "^5.0.0-beta.2",
+        "pg": "^8.13.1",
+        "underscore": "^1.13.7",
+        "winston": "^3.17.0"
     },
     "devDependencies": {
         "nodemon": "^3.1.7"
