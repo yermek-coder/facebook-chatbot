@@ -2,14 +2,19 @@ const axios = require("axios").default;
 const config = bl("config");
 
 class ApiService {
-    baseURL = "https://graph.instagram.com/v21.0/";
+    constructor(url, token) {
+        this.baseURL = url;
+        this.token = token;
+    }
+    baseURL;
+    token;
 
     exec(method, path, data = null, { headers, params } = {}) {
         return axios({
             method,
             url: `${this.baseURL}${path}`,
             data,
-            headers: { Authorization: `Bearer ${config.instagram.token}`, ...headers },
+            headers: { Authorization: `Bearer ${this.token}`, ...headers },
             params,
         });
     }
@@ -23,4 +28,7 @@ class ApiService {
     }
 }
 
-module.exports = ApiService;
+module.exports = {
+    instagramApi: new ApiService("https://graph.instagram.com/v21.0/", config.instagram.token),
+    whatsappApi: new ApiService("https://graph.facebook.com/v21.0/", config.whatsapp.token),
+};

@@ -1,7 +1,7 @@
 const DB = bl("meta/db");
 const chatgptService = bl("chatgpt");
 const em = bl("event");
-const api = bl("meta/api");
+const { instagramApi } = bl("meta/api");
 
 class MessagesService extends DB {
     constructor() {
@@ -60,9 +60,9 @@ class MessagesService extends DB {
                 message.text || "",
                 message.timestamp,
                 message.id,
-                message.replyTo.type,
-                message.replyTo.id,
-                message.replyTo.url,
+                message.replyTo?.type,
+                message.replyTo?.id,
+                message.replyTo?.url,
                 message.isEcho,
                 message.quickReply,
             ]);
@@ -92,7 +92,7 @@ class MessagesService extends DB {
     }
 
     sendMessage(recipient, text) {
-        return api.post("me/messages", {
+        return instagramApi.post("me/messages", {
             recipient: {
                 id: recipient?.id || recipient,
             },

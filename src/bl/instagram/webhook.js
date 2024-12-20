@@ -2,7 +2,7 @@ const em = bl("event");
 const MetaWebhookManager = bl("meta/webhook");
 const config = bl("config");
 
-class InstagramWebhookService extends MetaWebhookManager {
+class InstagramWebhookManager extends MetaWebhookManager {
     prepareEvent(req) {
         const body = req.body.entry[0];
 
@@ -17,16 +17,11 @@ class InstagramWebhookService extends MetaWebhookManager {
         const message = body?.messaging?.[0]?.message;
         const { sender, recipient, timestamp } = body?.messaging?.[0];
 
-        return {
+        const event = {
             type: "message",
             action: message?.is_deleted ? "deleted" : "created",
             text: message.text,
             id: message.mid,
-            replyTo: {
-                type: message?.reply_to?.mid ? "message" : "story",
-                id: message?.reply_to?.mid || message?.reply_to?.story?.id,
-                url: message?.reply_to?.story?.url,
-            },
             recipient: recipient.id,
             sender: sender.id,
             timestamp: new Date(timestamp).toISOString(),
@@ -34,6 +29,16 @@ class InstagramWebhookService extends MetaWebhookManager {
             attachments: (message.attachments || []).map((att) => ({ type: att.type, url: att.payload.url })),
             quickReply: message?.quick_reply?.payload,
         };
+
+        if (message?.reply_to) {
+            event.replyTo = {
+                type: message?.reply_to && (message?.reply_to?.mid ? "message" : "story"),
+                id: message?.reply_to?.mid || message?.reply_to?.story?.id,
+                url: message?.reply_to?.story?.url,
+            };
+        }
+
+        return event;
     }
 
     prepareCommentEvent(body) {
@@ -43,9 +48,9 @@ class InstagramWebhookService extends MetaWebhookManager {
             action: "created",
             id: comment.id,
             timestamp: new Date(body.time).toISOString(),
-            parentId: comment.parent_id,
-            text: comment.text,
-            from: {
+            parentId: comment?.parent_id,
+            text: comment?.text,
+            sender: {
                 id: comment.from.id,
                 username: comment.from.username,
             },
@@ -60,11 +65,11 @@ class InstagramWebhookService extends MetaWebhookManager {
         const verified = this.verifySignature(req, config.instagram.appSecret);
         if (verified) {
             const event = this.prepareEvent(req);
-            if (["message", "comment"].includes(event.type)) {
+            if (event && ["message", "comment"].includes(event.type)) {
                 em.emitp("instagram/" + event.type, event.action, event);
             }
         }
     }
 }
 
-module.exports = new InstagramWebhookService();
+module.exports = new InstagramWebhookManager();

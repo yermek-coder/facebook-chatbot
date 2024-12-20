@@ -7,6 +7,10 @@ class ChatgptService {
         return !!config.chatgpt.apiKey;
     }
 
+    // https://platform.openai.com/docs/guides/moderation
+
+    // https://platform.openai.com/docs/guides/speech-to-text
+
     chatCompletions(model) {
         // Asserts
         assert(model, "Invalid model");

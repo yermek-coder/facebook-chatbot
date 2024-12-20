@@ -1,7 +1,8 @@
-const api = bl("meta/api");
+const { instagramApi } = bl("meta/api");
 const DB = bl("meta/db");
 const chatgptService = bl("chatgpt");
 const em = bl("event");
+const config = bl("config");
 
 class CommentsService extends DB {
     constructor() {
@@ -24,8 +25,11 @@ class CommentsService extends DB {
 
     async handleCommentEvent(event, payload) {
         if (event === "created") {
-            const result = await this.saveComment(payload);
-            console.log("result1", result);
+            await this.saveComment(payload);
+
+            if (payload.sender.id === config.instagram.userId) {
+                // const history = this.getCommentsHistory(payload);
+            }
         }
     }
 
@@ -42,8 +46,8 @@ class CommentsService extends DB {
                 comment.text,
                 comment.timestamp,
                 comment.parentId,
-                comment.from.id,
-                comment.from.username,
+                comment.sender.id,
+                comment.sender.username,
                 comment.media.id,
                 comment.media.type,
             ]);
@@ -54,17 +58,18 @@ class CommentsService extends DB {
         }
     }
 
-    async getCommentsHistory(userId, limit = 10) {
+    async getCommentsHistory(comment, limit = 10) {
+        const { sender, parentId, media } = comment;
         const query = `
             SELECT *
-            FROM messages
+            FROM comments
             WHERE sender_id = $1
             ORDER BY timestamp ASC
             LIMIT $2
         `;
 
         try {
-            const result = await this.pool.query(query, [userId, limit]);
+            const result = await this.pool.query(query, [id, limit]);
             return result.rows;
         } catch (error) {
             console.error("Error getting conversation history:", error);
@@ -73,11 +78,11 @@ class CommentsService extends DB {
     }
 
     replyToComment(comment, message) {
-        return api.post(`${comment}/replies`, { message });
+        return instagramApi.post(`${comment}/replies`, { message });
     }
 
     createComment(mediaId, text) {
-        return api.post(`${mediaId}/comments?message=${encodeURIComponent(text)}`);
+        return instagramApi.post(`${mediaId}/comments?message=${encodeURIComponent(text)}`);
     }
 }
 

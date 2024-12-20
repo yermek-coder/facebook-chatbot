@@ -6,7 +6,6 @@ const $m = require("./magic");
 const http = require("http");
 const path = require("path");
 const _ = require("underscore");
-const assert = require("assert");
 const express = require("express");
 const bodyParser = require("body-parser");
 const jsonPromise = require("express-json-promise");
@@ -75,15 +74,6 @@ _.each($m.scan("api"), function (api) {
     const service = require(api.file);
     if (service) {
         logger.debug(`Using API: ${api.id}`);
-
-        app.use(
-            "/api/" + api.id,
-            (req, res, done) => {
-                // Inject authenticated user into context
-                done();
-            },
-            service
-        );
     }
 });
 

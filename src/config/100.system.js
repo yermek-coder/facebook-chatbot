@@ -11,24 +11,21 @@ module.exports = {
     port: PORT,
     dev: process.env.DEV === "true",
 
-    // metaAppSecret: process.env.META_APP_SERCRET,
-    // instAppSecret: process.env.INST_APP_SERCRET,
-    // metaToken: process.env.META_VERIFICATION_TOKEN,
-    // instToken: process.env.INSTAGRAM_TOKEN,
-    // instUser: ,
-
     meta: {
         token: process.env.META_VERIFICATION_TOKEN,
         appSecret: process.env.META_APP_SERCRET,
     },
 
     instagram: {
-        user: process.env.INSTAGRAM_USER,
+        userId: process.env.INSTAGRAM_USER_ID,
         token: process.env.INSTAGRAM_TOKEN,
         appSecret: process.env.INST_APP_SERCRET,
     },
 
-    whatsapp: {},
+    whatsapp: {
+        token: process.env.WHATSAPP_TOKEN,
+        userId: process.env.WHATSAPP_USER_ID,
+    },
 
     db: {
         user: process.env.DB_USER,
