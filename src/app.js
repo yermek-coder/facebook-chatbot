@@ -74,6 +74,14 @@ _.each($m.scan("api"), function (api) {
     const service = require(api.file);
     if (service) {
         logger.debug(`Using API: ${api.id}`);
+
+        app.use(
+            "/api/" + api.id,
+            (req, res, done) => {
+                done();
+            },
+            service
+        );
     }
 });
 

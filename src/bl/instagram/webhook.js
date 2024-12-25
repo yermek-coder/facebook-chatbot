@@ -22,8 +22,8 @@ class InstagramWebhookManager extends MetaWebhookManager {
             action: message?.is_deleted ? "deleted" : "created",
             text: message.text,
             id: message.mid,
-            recipient: recipient.id,
-            sender: sender.id,
+            recipient: { id: recipient.id },
+            sender: { id: sender.id },
             timestamp: new Date(timestamp).toISOString(),
             isEcho: !!message.is_echo,
             attachments: (message.attachments || []).map((att) => ({ type: att.type, url: att.payload.url })),
@@ -32,10 +32,14 @@ class InstagramWebhookManager extends MetaWebhookManager {
 
         if (message?.reply_to) {
             event.replyTo = {
-                type: message?.reply_to && (message?.reply_to?.mid ? "message" : "story"),
                 id: message?.reply_to?.mid || message?.reply_to?.story?.id,
-                url: message?.reply_to?.story?.url,
             };
+            if (message?.reply_to?.story?.id) {
+                event.replyTo.story = {
+                    id: message.reply_to.story.id,
+                    url: message.reply_to.story.url,
+                };
+            }
         }
 
         return event;

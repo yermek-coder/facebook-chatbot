@@ -1,26 +1,10 @@
-const DB = bl("meta/db");
+const db = bl("db");
 const chatgptService = bl("chatgpt");
 const em = bl("event");
 const { instagramApi } = bl("meta/api");
 
-class MessagesService extends DB {
+class MessagesService {
     constructor() {
-        super([
-            `CREATE TABLE IF NOT EXISTS messages (
-                id SERIAL PRIMARY KEY,
-                mid VARCHAR(200) UNIQUE,
-                sender_id BIGINT,
-                recipient_id BIGINT,
-                text TEXT,
-                reply_to_type VARCHAR(50),
-                reply_to_id VARCHAR(200),
-                reply_to_url TEXT,
-                is_echo BOOLEAN DEFAULT FALSE,
-                quick_reply TEXT,
-                timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            );`,
-        ]);
-
         em.on("instagram/message", (event, payload) => this.handleMessageEvent(event, payload));
     }
 
@@ -47,48 +31,48 @@ class MessagesService extends DB {
     }
 
     async saveMessage(message) {
-        const query = `
-                INSERT INTO messages (sender_id, recipient_id, text, timestamp, mid, reply_to_type, reply_to_id, reply_to_url, is_echo, quick_reply)
-                VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)
-                RETURNING id
-            `;
-
-        try {
-            const result = await this.pool.query(query, [
-                message.sender,
-                message.recipient,
-                message.text || "",
-                message.timestamp,
-                message.id,
-                message.replyTo?.type,
-                message.replyTo?.id,
-                message.replyTo?.url,
-                message.isEcho,
-                message.quickReply,
-            ]);
-            return result.rows[0];
-        } catch (error) {
-            console.error("Error saving message:", error);
-            throw error;
+        // Save new user
+        if (!(await db.count("instagram_users", { id: message.sender.id }))) {
+            await db.create("instagram_users", message.sender);
         }
+        if (!(await db.count("instagram_users", { id: message.recipient.id }))) {
+            await db.create("instagram_users", message.recipient);
+        }
+
+        const entry = {
+            sender: message.sender.id,
+            recipient: message.recipient.id,
+            text: message.text || "",
+            timestamp: message.timestamp,
+            id: message.id,
+            is_echo: message.isEcho,
+            quick_reply: message.quickReply,
+        };
+
+        if (message?.replyTo) {
+            entry.reply_to_message = message.replyTo.id;
+
+            if (message.replyTo?.story) {
+                entry.reply_to_story = message.replyTo.story.d;
+                // Save new story
+                if (!(await db.count("instagram_story", { id: message.replyTo.story.id }))) {
+                    await db.create("instagram_story", {
+                        id: message.replyTo.story.id,
+                        url: message.replyTo.story.url,
+                    });
+                }
+            }
+        }
+
+        return db.create("instagram_messages", entry);
     }
 
-    async getConversationHistory(userId, limit = 10) {
-        const query = `
-            SELECT *
-            FROM messages
-            WHERE sender_id = $1 OR recipient_id = $1
-            ORDER BY timestamp ASC
-            LIMIT $2
-        `;
-
-        try {
-            const result = await this.pool.query(query, [userId, limit]);
-            return result.rows;
-        } catch (error) {
-            console.error("Error getting conversation history:", error);
-            throw error;
-        }
+    async getConversationHistory(user, limit = 10) {
+        const ref = user?.id || user;
+        return db.findAll("instagram_messages", [{ sender: ref }, { recipient: ref }], {
+            orderBy: "timestamp",
+            limit,
+        });
     }
 
     sendMessage(recipient, text) {
@@ -103,13 +87,7 @@ class MessagesService extends DB {
     }
 
     async deleteMessage(messageId) {
-        const query = "DELETE FROM messages WHERE mid = $1";
-        try {
-            return this.pool.query(query, [messageId]);
-        } catch (error) {
-            console.error("Error deleting message:", error);
-            throw error;
-        }
+        return db.delete("instagram_messages", { id: messageId });
     }
 }
 
