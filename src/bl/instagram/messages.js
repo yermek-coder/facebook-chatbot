@@ -1,5 +1,6 @@
+const assert = require("assert");
 const db = bl("db");
-const chatgptService = bl("chatgpt");
+const ai = bl("ai");
 const em = bl("event");
 const { instagramApi } = bl("meta/api");
 
@@ -13,16 +14,14 @@ class MessagesService {
             if (payload?.text) {
                 await this.saveMessage(payload);
 
-                if (!payload.isEcho) {
-                    // if message is not ours
+                // if message is not ours
+                if (!payload?.isEcho) {
                     const history = await this.getConversationHistory(payload.sender);
-                    const response = await chatgptService.getResponse(
-                        history.map((item) => ({
-                            role: item.is_echo ? "assistant" : "user",
-                            content: item.text,
-                        }))
-                    );
-                    this.sendMessage(payload.sender, response.content);
+
+                    const accountid = payload.recipient?.id || payload.recipient
+                    const response = (await ai.execute("generateMessage", { product: 'instagram', accountid, history }));
+
+                    this.sendMessage(payload.sender, response);
                 }
             }
         } else if (event === "deleted") {
@@ -69,10 +68,14 @@ class MessagesService {
 
     async getConversationHistory(user, limit = 10) {
         const ref = user?.id || user;
-        return db.findAll("instagram_messages", [{ sender: ref }, { recipient: ref }], {
+        const history = await db.findAll("instagram_messages", [{ sender: ref }, { recipient: ref }], {
             orderBy: "timestamp",
             limit,
         });
+        return history.map((item) => ({
+            role: item.is_echo ? "assistant" : "user",
+            content: item.text,
+        }));
     }
 
     sendMessage(recipient, text) {

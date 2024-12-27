@@ -11,13 +11,19 @@ class CommentsService {
 
     async handleCommentEvent(event, payload) {
         if (event === "created") {
-            await this.saveComment(payload);
+            const moderation = await chatgptService.getModeration(payload.text);
+            if (moderation?.flagged) {
+                this.deleteComment(payload.id);
+                console.log("Comment deleted", payload.sender.id, payload.text);
+            } else {
+                await this.saveComment(payload);
 
-            console.log("payload", payload);
+                if (payload.sender.id !== config.instagram.userId) {
+                    const history = await this.getCommentsHistory(payload);
+                    const response = await chatgptService.getResponse(history);
 
-            if (payload.sender.id !== config.instagram.userId) {
-                const history = await this.getCommentsHistory(payload);
-                console.log("history", history);
+                    this.replyToComment(payload.id, response.content);
+                }
             }
         }
     }
@@ -52,7 +58,16 @@ class CommentsService {
         } else {
             condition.sender = comment.sender.id;
         }
-        return db.findAll("instagram_comments", condition, { orderBy: "timestamp", limit });
+
+        const history = await db.findAll("instagram_comments", condition, {
+            orderBy: "timestamp",
+            order: "DESC",
+            limit,
+        });
+        return history.reverse().map((item) => ({
+            role: item.sender === config.instagram.userId ? "assistant" : "user",
+            content: item.text,
+        }));
     }
 
     replyToComment(comment, message) {
@@ -61,6 +76,10 @@ class CommentsService {
 
     createComment(mediaId, text) {
         return instagramApi.post(`${mediaId}/comments?message=${encodeURIComponent(text)}`);
+    }
+
+    deleteComment(commentId) {
+        return instagramApi.delete(commentId);
     }
 }
 

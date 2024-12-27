@@ -1,0 +1,27 @@
+{
+    "env": {
+        "commonjs": true,
+        "es2021": true,
+        "node": true
+    },
+    "extends": "eslint:recommended",
+    "globals": {
+        "__basedir": "readonly",
+        "bl": "readonly",
+        "include": "readonly"
+    },
+    "ignorePatterns": [
+        ".vscode/**",
+        "bin/**",
+        "build/**",
+        "data/**",
+        "ext/snippets/**",
+        "**/web/**",
+        "test/**"
+    ],
+    "overrides": [],
+    "parserOptions": {
+        "ecmaVersion": "latest"
+    },
+    "rules": {}
+}

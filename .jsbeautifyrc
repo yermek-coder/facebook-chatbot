@@ -1,0 +1,5 @@
+{
+    "space_after_anon_function": false,
+    "wrap_attributes": "auto",
+    "end_with_newline": true
+}

@@ -1,0 +1,9 @@
+.*
+build
+data
+test
+node_modules
+Dockerfile
+docker-compose*.yml
+bitbucket-pipelines.yml
+vitest*.config.ts

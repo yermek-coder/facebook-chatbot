@@ -26,6 +26,10 @@ class ApiService {
     post(path, body = null, config = {}) {
         return this.exec("post", path, body, config);
     }
+
+    delete(path, config = {}) {
+        return this.exec("delete", path, config);
+    }
 }
 
 module.exports = {

@@ -15,15 +15,33 @@
         "assert": "^2.1.0",
         "axios": "^1.7.8",
         "body-parser": "^1.20.3",
+        "connect-redis": "^3.2.0",
+        "cors": "^2.8.5",
+        "crypto": "^1.0.1",
         "dotenv": "^16.4.5",
+        "email-validator": "^2.0.4",
         "express": "^4.21.1",
         "express-json-promise": "^0.1.2",
+        "express-session": "^1.17.3",
+        "helmet": "^8.0.0",
+        "jsonwebtoken": "^9.0.2",
         "ngrok": "^5.0.0-beta.2",
+        "passport": "^0.6.0",
+        "passport-custom": "^1.0.5",
+        "passport-json": "^1.2.0",
+        "passport-jwt": "^4.0.0",
+        "passport-linkedin": "^1.0.0",
+        "passport-oauth2": "^1.6.1",
+        "passport-strategy": "^1.0.0",
+        "passport-xing": "^0.1.5",
+        "password-hash": "^1.2.2",
         "pg": "^8.13.1",
+        "redis": "^2.7.1",
         "underscore": "^1.13.7",
         "winston": "^3.17.0"
     },
     "devDependencies": {
-        "nodemon": "^3.1.7"
+        "nodemon": "^3.1.7",
+        "prettier": "3.4.2"
     }
 }

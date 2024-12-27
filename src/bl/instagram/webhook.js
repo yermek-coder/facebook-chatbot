@@ -1,8 +1,6 @@
 const em = bl("event");
-const MetaWebhookManager = bl("meta/webhook");
-const config = bl("config");
 
-class InstagramWebhookManager extends MetaWebhookManager {
+class InstagramWebhookManager {
     prepareEvent(req) {
         const body = req.body.entry[0];
 
@@ -66,12 +64,9 @@ class InstagramWebhookManager extends MetaWebhookManager {
     }
 
     async onEvent(req) {
-        const verified = this.verifySignature(req, config.instagram.appSecret);
-        if (verified) {
-            const event = this.prepareEvent(req);
-            if (event && ["message", "comment"].includes(event.type)) {
-                em.emitp("instagram/" + event.type, event.action, event);
-            }
+        const event = this.prepareEvent(req);
+        if (event && ["message", "comment"].includes(event.type)) {
+            em.emitp("instagram/" + event.type, event.action, event);
         }
     }
 }
