@@ -57,9 +57,10 @@ class MessagesService {
         const ref = user?.id || user;
         const history = await db.findAll("whatsapp_messages", [{ sender: ref }, { recipient: ref }], {
             orderBy: "timestamp",
+            order: "DESC",
             limit,
         });
-        return history.map((item) => ({
+        return history.toReversed().map((item) => ({
             role: item.is_echo ? "assistant" : "user",
             content: item.text,
         }));

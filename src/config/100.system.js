@@ -38,7 +38,7 @@ module.exports = {
     chatgpt: {
         baseUrl: process.env.CHATGPT_BASE_URL || "https://api.openai.com/v1",
         apiKey: process.env.CHATGPT_APIKEY,
-        model: process.env.CHATGPT_MODEL || "gpt-4o-mini",
+        model: process.env.CHATGPT_MODEL || "gpt-4o",
         limit: parseInt(process.env.CHATGPT_LIMIT || "5000")
     },
 
